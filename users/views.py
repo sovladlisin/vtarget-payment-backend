@@ -33,7 +33,7 @@ def login(request):
                 user_data = vk_request('get', 'users.get', {
                                        'user_ids': user_id, 'fields': 'photo_200'}, token, '5.124')['response'][0]
                 new_user = VkUser(
-                    user_id=user_data['id'], user_img=user_data['photo_200'], user_name=user_data['first_name'] + ' ' + user_data['last_name'], token=token, post_token='')
+                    user_id=user_data['id'], user_img=user_data['photo_200'], user_name=user_data['first_name'] + ' ' + user_data['last_name'], token=token)
                 new_user.save()
                 # new_user.token = True
                 result = model_to_dict(new_user)
