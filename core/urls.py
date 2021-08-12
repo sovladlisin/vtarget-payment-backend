@@ -6,8 +6,8 @@ from django.conf.urls.static import static
 
 
 urlpatterns = [
-    path('api/auth/', include('users.urls')),
-    path('api/cabinets/', include('cabinets.urls')),
+    path('api/auth/', include('users.api.urls')),
+    path('api/cabinets/', include('cabinets.api.urls')),
 
     path('admin/', admin.site.urls),
     url(r'^files/', include('db_file_storage.urls')),
