@@ -12,6 +12,8 @@ import json
 from cabinets.api.client_methods import getVkUserInfo
 from users.models import Account, VkProfile
 
+from django.contrib.auth import authenticate
+
 
 @api_view(['POST', ])
 @permission_classes((AllowAny,))
@@ -22,16 +24,7 @@ def registration_view(request):
         data = {}
         if serializer.is_valid():
             account = serializer.save()
-            data['response'] = 'Success'
-            data['email'] = account.email
-            data['username'] = account.username
-            token = Token.objects.get(user=account).key
-            data['token'] = token
-            data['is_admin'] = account.is_admin
-            data['id'] = account.pk
-            data['is_online'] = True
-
-            data['vk_profile'] = None
+            data = collect_account_func(account)
         else:
             print('not valis')
             data = serializer.errors
@@ -47,27 +40,66 @@ def login_view(request):
         data = {}
         if serializer.is_valid():
             account = serializer.authenticate()
-            data['response'] = 'Success'
-            data['email'] = account.email
-            data['username'] = account.username
-            token = Token.objects.get(user=account).key
-            data['token'] = token
-            data['is_admin'] = account.is_admin
-            data['id'] = account.pk
-            data['is_online'] = True
-
-            data['vk_profile'] = None
-            vk_profile = VkProfile.objects.all().filter(user=account)
-            if vk_profile.count() == 1:
-                vk_profile = vk_profile.first()
-                vk_profile_data = {}
-                vk_profile_data['name'] = vk_profile.name
-                vk_profile_data['photo'] = vk_profile.photo
-                vk_profile_data['vk_id'] = int(vk_profile.vk_id)
-                data['vk_profile'] = vk_profile_data
+            data = collect_account_func(account)
 
         else:
+            print('valid error')
             data = serializer.errors
+        return Response(data)
+
+
+@api_view(['POST', ])
+@permission_classes((IsAuthenticated,))
+def change_email_view(request):
+
+    if request.method == 'POST':
+        v_data = json.loads(request.body.decode('utf-8'))
+        password = v_data.get('password', None)
+        new_email = v_data.get('new_email', None)
+
+        if None in [password, new_email]:
+            return HttpResponse(status=400)
+
+        data = {}
+        account = authenticate(
+            username=request.user.email, password=password)
+        if account is None:
+            return HttpResponse(status=301)
+
+        account.email = new_email
+        account.username = new_email + 'username'
+
+        account.save()
+
+        data = collect_account_func(account)
+
+        return Response(data)
+
+
+@api_view(['POST', ])
+@permission_classes((IsAuthenticated,))
+def change_password_view(request):
+
+    if request.method == 'POST':
+        v_data = json.loads(request.body.decode('utf-8'))
+        password = v_data.get('password', None)
+        new_password = v_data.get('new_password', None)
+
+        if None in [password, new_password]:
+            return HttpResponse(status=400)
+
+        data = {}
+        account = authenticate(
+            username=request.user.email, password=password)
+        if account is None:
+            return HttpResponse(status=301)
+
+        account.set_password(new_password)
+
+        account.save()
+
+        data = collect_account_func(account)
+
         return Response(data)
 
 
@@ -103,3 +135,26 @@ def connect_vk_profile(request):
         data['vk_id'] = int(new_vk_profile.vk_id)
 
         return Response(data)
+
+
+def collect_account_func(account):
+    data = {}
+    data['response'] = 'Success'
+    data['email'] = account.email
+    data['username'] = account.email
+    token = Token.objects.get(user=account).key
+    data['token'] = token
+    data['is_admin'] = account.is_admin
+    data['id'] = account.pk
+    data['is_online'] = True
+
+    data['vk_profile'] = None
+    vk_profile = VkProfile.objects.all().filter(user=account)
+    if vk_profile.count() == 1:
+        vk_profile = vk_profile.first()
+        vk_profile_data = {}
+        vk_profile_data['name'] = vk_profile.name
+        vk_profile_data['photo'] = vk_profile.photo
+        vk_profile_data['vk_id'] = int(vk_profile.vk_id)
+        data['vk_profile'] = vk_profile_data
+    return data
