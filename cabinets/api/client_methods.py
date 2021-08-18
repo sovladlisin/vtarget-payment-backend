@@ -111,3 +111,82 @@ def getVkUserInfo(token, user_id):
         return result
     except:
         return -1
+
+# [{'user_id': 122058319, 'accesses': [{'client_id': 1606988483, 'role': 'manager'}]
+
+
+def getOfficeUsers(token, account_id):
+    r = vk_request('get', 'ads.getOfficeUsers', {
+                   'account_id': account_id}, token, '5.131')
+    result = r['response']
+    print(result)
+    return result
+
+# Input: data = [{user_id: int, role: manager | reports, client_ids: [int]}]
+# Response: {'response': [{'user_id': int, 'is_success': boolean}]}
+
+
+def removeOfficeUsers(token, account_id, ids):
+    r = vk_request('post', 'ads.removeOfficeUsers', {
+                   'account_id': account_id, 'ids': json.dumps(ids)}, token, '5.131')
+    print(r)
+
+
+def updateOfficeUsers(token, account_id, client_id, users_id):
+
+    def collectData(input, client_id, users_id):
+        result = {}
+        for item in input:
+            user_id = item['user_id']
+            temp = []
+            for access in item['accesses']:
+                if access['role'] != 'admin':
+                    temp.append(int(access['client_id']))
+
+            if len(temp) > 0:
+                result[user_id] = temp
+
+        for user in result:
+            ids = result[user]
+            if user in users_id:
+                ids.append(client_id)
+            else:
+                ids = list(filter(lambda x: (x != client_id), ids))
+
+            result[user] = ids
+
+        for user in users_id:
+            if user not in result:
+                result[user] = [client_id]
+
+        print(result)
+        return result
+
+    def prepData(data):
+        result = []
+        delete = []
+        for u in data:
+            if len(data[u]) > 0:
+                temp = {}
+                temp['grant_access_to_all_clients'] = False
+                temp['view_budget'] = False
+                temp['user_id'] = u
+                temp['client_ids'] = data[u]
+                temp['role'] = 'reports'
+                result.append(temp)
+            else:
+                delete.append(u)
+
+        if len(delete) > 0:
+            removeOfficeUsers(token, account_id, delete)
+        print(result)
+        return result
+
+    prev_data = getOfficeUsers(token, account_id)
+    new_data = collectData(prev_data, client_id, users_id)
+    prep_data = prepData(new_data)
+
+    if len(prep_data) > 0:
+        r = vk_request('post', 'ads.updateOfficeUsers', {
+                       'account_id': account_id, 'data': json.dumps(prep_data)}, token, '5.131')
+        print(r)

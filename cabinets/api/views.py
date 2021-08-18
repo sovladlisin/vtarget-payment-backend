@@ -1,5 +1,5 @@
 from django.http.response import HttpResponse
-from cabinets.api.client_methods import deleteClient, getClients, getVkUserInfo, createClient, updateClient
+from cabinets.api.client_methods import deleteClient, getClients, getVkUserInfo, createClient, updateClient, updateOfficeUsers
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
@@ -97,7 +97,6 @@ def create_client(request):
         name = v_data.get('name', None)
         day_limit = v_data.get('day_limit', None)
         all_limit = v_data.get('all_limit', None)
-
         user = request.user
 
         if None in [day_limit, name, all_limit]:
@@ -109,6 +108,10 @@ def create_client(request):
             return HttpResponse(status=500)
 
         vk_profile = VkProfile.objects.get(user=user)
+
+        # creating permissions on vk side
+        updateOfficeUsers(token, account_id,
+                          created_client_id, [vk_profile.vk_id])
 
         client_user = ClientUser.objects.all().filter(vk_id=vk_profile.vk_id)
 
@@ -159,6 +162,10 @@ def delete_client(request):
                 if deleted in [0, 600]:
                     for p in AccountPermission.objects.all().filter(client_id=client_id):
                         p.delete()
+
+                        # removing permissions on vk side
+                        updateOfficeUsers(token, account_id, client_id, [])
+
                     return HttpResponse(status=200)
                 else:
                     return HttpResponse(status=500)
@@ -228,6 +235,9 @@ def update_client_permissions(request):
             if account_perm.role in [1, 2]:
                 for old_perm in AccountPermission.objects.all().filter(client_id=client_id).exclude(role=2):
                     old_perm.delete()
+
+                # client ids for vk
+                vk_client_ids = []
                 for new_perm in new_permissions:
                     if new_perm['role'] != 2:
                         new_client_user = ClientUser.objects.all().filter(
@@ -241,6 +251,10 @@ def update_client_permissions(request):
                         new_account_permission = AccountPermission(
                             user=new_client_user, role=new_perm['role'], client_id=client_id)
                         new_account_permission.save()
+
+                    vk_client_ids.append(new_perm['vk_id'])
+
+                updateOfficeUsers(token, account_id, client_id, vk_client_ids)
                 return HttpResponse(status=200)
             else:
                 return HttpResponse(status=301)
