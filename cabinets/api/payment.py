@@ -280,7 +280,7 @@ def transfer_with_wallet(request):
         amount = v_data.get('amount', None)
 
         if None in [is_adding, client_id, amount]:
-            return HttpResponse(status=400)
+            return HttpResponse('Неправильные входные параметры', status=400)
 
         amount = int(amount)
 
@@ -289,7 +289,7 @@ def transfer_with_wallet(request):
             all_limit = int(client_data['all_limit'])
             all_limit -= amount
             if all_limit < 0:
-                return HttpResponse(status=400)
+                return HttpResponse('Недостаточно средств', status=400)
 
             response = updateClient(
                 account_id, token, client_id, client_data['name'], client_data['day_limit'], all_limit)
@@ -308,7 +308,7 @@ def transfer_with_wallet(request):
             all_limit += amount
 
             if user.wallet - amount < 0:
-                return HttpResponse(status=400)
+                return HttpResponse('Недостаточно средств', status=400)
 
             response = updateClient(
                 account_id, token, client_id, client_data['name'], client_data['day_limit'], all_limit)
@@ -321,7 +321,7 @@ def transfer_with_wallet(request):
 
             return HttpResponse(status=200)
 
-    return HttpResponse(status=400)
+    return HttpResponse(status=403)
 
 
 @api_view(['POST', ])
@@ -360,4 +360,4 @@ def transfer_with_clients(request):
 
         return HttpResponse(status=200)
 
-    return HttpResponse(status=400)
+    return HttpResponse(status=403)
