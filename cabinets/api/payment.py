@@ -100,7 +100,7 @@ def start_payment_process(request):
 @api_view(['POST', ])
 @permission_classes((AllowAny,))
 def update_payment_details(request):
-    print(request.REMOTE_HOST)
+    # print(request.REMOTE_HOST)
 
     if request.method == 'POST':
 
