@@ -28,6 +28,9 @@ account_id = 1900015024
 terminal = '1624995550332DEMO'
 terminal_password = 'e4u79jezxgn7c7po'
 
+SUCCESS_URL = 'https://vtarget-payment.herokuapp.com/successPayment'
+FAIL_URL = 'https://vtarget-payment.herokuapp.com/failPayment'
+
 
 @api_view(['POST', ])
 @permission_classes((IsAuthenticated,))
@@ -61,6 +64,8 @@ def start_payment_process(request):
 
         bank_request_params['OrderId'] = order_id
         bank_request_params['Description'] = 'Desc'
+        bank_request_params['SuccessURL'] = SUCCESS_URL
+        bank_request_params['FailURL'] = FAIL_URL
 
         # generating payment token
         bank_request_params['Token'] = get_request_token(bank_request_params)
