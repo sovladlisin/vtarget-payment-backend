@@ -76,8 +76,8 @@ def get_client_list(request):
             client_data['spent'] = client['spent']
             client_data['name'] = client['name']
             client_data['account_id'] = account_id
-            client_data['day_limit'] = client['day_limit']
-            client_data['all_limit'] = client['all_limit']
+            client_data['day_limit'] = int(client['day_limit'])
+            client_data['all_limit'] = int(client['all_limit'])
 
             # in dev
             client_data['balance'] = 1000
@@ -134,8 +134,8 @@ def create_client(request):
         data['balance'] = 0
         data['name'] = name
         data['account_id'] = account_id
-        data['day_limit'] = day_limit
-        data['all_limit'] = all_limit
+        data['day_limit'] = int(day_limit)
+        data['all_limit'] = int(all_limit)
 
         return Response(data)
 
