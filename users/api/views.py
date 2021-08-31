@@ -137,7 +137,7 @@ def connect_vk_profile(request):
         return Response(data)
 
 
-@api_view(['POST', ])
+@api_view(['GET', ])
 @permission_classes((IsAuthenticated,))
 def update_account_info(request):
     response = collect_account_func(request.user)
