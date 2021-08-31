@@ -267,3 +267,97 @@ def get_request_token(params):
         collected_string += str(params[key])
     hash_object = hashlib.sha256(collected_string.encode())
     return hash_object.hexdigest()
+
+
+@api_view(['POST', ])
+@permission_classes((IsAuthenticated,))
+def transfer_with_wallet(request):
+    if request.method == 'POST':
+        user = request.user
+        v_data = json.loads(request.body.decode('utf-8'))
+        is_adding = v_data.get('is_adding', None)
+        client_id = v_data.get('client_id', None)
+        amount = v_data.get('amount', None)
+
+        if None in [is_adding, client_id, amount]:
+            return HttpResponse(status=400)
+
+        amount = int(amount)
+
+        if is_adding == 1:
+            client_data = getClient(account_id, token, client_id)
+            all_limit = int(client_data['all_limit'])
+            all_limit -= amount
+            if all_limit < 0:
+                return HttpResponse(status=400)
+
+            response = updateClient(
+                account_id, token, client_id, client_data['name'], client_data['day_limit'], all_limit)
+
+            if response == -1:
+                return HttpResponse(status=500)
+
+            user.wallet += amount
+            user.save()
+
+            return HttpResponse(status=200)
+
+        if is_adding == 0:
+            client_data = getClient(account_id, token, client_id)
+            all_limit = int(client_data['all_limit'])
+            all_limit += amount
+
+            if user.wallet - amount < 0:
+                return HttpResponse(status=400)
+
+            response = updateClient(
+                account_id, token, client_id, client_data['name'], client_data['day_limit'], all_limit)
+
+            if response == -1:
+                return HttpResponse(status=500)
+
+            user.wallet -= amount
+            user.save()
+
+            return HttpResponse(status=200)
+
+    return HttpResponse(status=400)
+
+
+@api_view(['POST', ])
+@permission_classes((IsAuthenticated,))
+def transfer_with_clients(request):
+    if request.method == 'POST':
+        user = request.user
+        v_data = json.loads(request.body.decode('utf-8'))
+        client_id_from = v_data.get('client_id', None)
+        client_id_to = v_data.get('client_id', None)
+        amount = v_data.get('amount', None)
+
+        if None in [client_id_from, client_id_to, amount]:
+            return HttpResponse(status=400)
+
+        amount = int(amount)
+
+        client_data_from = getClient(account_id, token, client_id_from)
+        client_data_to = getClient(account_id, token, client_id_to)
+
+        all_limit_from = int(client_data_from['all_limit'])
+        all_limit_to = int(client_data_to['all_limit'])
+
+        if all_limit_from - amount < 0:
+            return HttpResponse(status=400)
+
+        all_limit_from -= amount
+        all_limit_to += amount
+
+        response_from = updateClient(
+            account_id, token, client_id_from, client_id_from['name'], client_id_from['day_limit'], all_limit_from)
+        response_to = updateClient(
+            account_id, token, client_data_to, client_data_to['name'], client_data_to['day_limit'], all_limit_to)
+        if response_from == -1 or response_to == -1:
+            return HttpResponse(status=500)
+
+        return HttpResponse(status=200)
+
+    return HttpResponse(status=400)

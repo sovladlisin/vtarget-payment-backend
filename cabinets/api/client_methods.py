@@ -80,7 +80,7 @@ def getClients(account_id, token):
 def createClient(account_id, token, name, day_limit, all_limit):
     try:
         r = vk_request('get', 'ads.createClients', {'account_id': account_id, 'data': json.dumps(
-            [{'name': name, 'day_limit': str(day_limit), 'all_limit': str(all_limit)}])}, token, '5.131')
+            [{'name': name, 'day_limit': str(day_limit), 'all_limit': '1'}])}, token, '5.131')
         id = r['response'][0]['id']
         return id
     except Exception as e:

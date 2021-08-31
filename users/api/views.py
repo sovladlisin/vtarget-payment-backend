@@ -147,6 +147,7 @@ def collect_account_func(account):
     data['is_admin'] = account.is_admin
     data['id'] = account.pk
     data['is_online'] = True
+    data['wallet'] = account.wallet
 
     data['vk_profile'] = None
     vk_profile = VkProfile.objects.all().filter(user=account)
