@@ -113,7 +113,7 @@ def update_payment_details(request):
 
         payment = Payment.objects.all().filter(order_id=order_id)
         if payment.count() != 1:
-            return HttpResponse(status=200)
+            return HttpResponse('OK', content_type="text/plain", status=200)
 
         payment = payment.first()
 
@@ -168,7 +168,7 @@ def update_payment_details(request):
 
         payment.status = status
         payment.save()
-        return HttpResponse(status=200)
+        return HttpResponse('OK', content_type="text/plain", status=200)
         # {
         #     "Success": true,
         #     "ErrorCode": "0",
