@@ -94,6 +94,7 @@ def updateClient(account_id, token, client_id, name, day_limit, all_limit):
     try:
         r = vk_request('get', 'ads.updateClients', {'account_id': account_id, 'data': json.dumps(
             [{'client_id': client_id, 'name': name, 'day_limit': str(day_limit), 'all_limit': str(all_limit)}])}, token, '5.131')
+        print(r)
         id = r['response'][0]['id']
         return id
     except Exception as e:
