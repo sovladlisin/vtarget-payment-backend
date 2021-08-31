@@ -119,7 +119,7 @@ def update_payment_details(request):
 
         # CONFIRMED
 
-        if status in ['CONFIRMED']:
+        if status in ['CONFIRMED'] and not payment.is_processed:
             if payment.is_wallet == 0:
                 order_data = order_id.split('_')
                 client_id = int(order_data[1])
