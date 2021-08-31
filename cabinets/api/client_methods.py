@@ -14,6 +14,25 @@ def vk_request(type, name, params, token, v):
         return r.json()
 
 
+def getClient(account_id, token, client_id):
+    try:
+        r = vk_request('get', 'ads.getClients', {
+                       'account_id': account_id}, token, '5.131')
+        result = {}
+        clients = r['response']
+
+        if len(clients) == 0:
+            return -1
+        for c in clients:
+            if str(c['id']) == str(client_id):
+                return {'name': c['name'], 'spent': 0, 'status': 1, 'all_limit': c['all_limit'],  'day_limit': c['day_limit']}
+        return -1
+
+    except Exception as e:
+        print('Failed get client: ' + str(e))
+        return -1
+
+
 # Result = [{id, name, day_limit, all_limit, spent}]
 # Error = -1
 def getClients(account_id, token):

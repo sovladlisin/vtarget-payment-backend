@@ -7,6 +7,9 @@ from cabinets.api.views import(
     update_client_permissions,
     get_client_list
 )
+from cabinets.api.payment import (
+    start_payment_process,
+)
 
 from rest_framework.authtoken.views import obtain_auth_token
 
@@ -21,4 +24,9 @@ urlpatterns = [
     path('updateClientMeta', update_client_meta, name="updateClientMeta"),
     path('updateClientPermissions', update_client_permissions,
          name="updateClientPermissions"),
+
+    # pay
+    path('initPayment', start_payment_process,
+         name="initPayment"),
+
 ]
