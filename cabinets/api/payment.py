@@ -335,7 +335,7 @@ def transfer_with_clients(request):
         amount = v_data.get('amount', None)
 
         if None in [client_id_from, client_id_to, amount]:
-            return HttpResponse(status=400)
+            return HttpResponse('Неправильные входные параметры', status=400)
 
         amount = int(amount)
 
@@ -346,7 +346,7 @@ def transfer_with_clients(request):
         all_limit_to = int(client_data_to['all_limit'])
 
         if all_limit_from - amount < 0:
-            return HttpResponse(status=400)
+            return HttpResponse('Недостаточно средств', status=400)
 
         all_limit_from -= amount
         all_limit_to += amount
