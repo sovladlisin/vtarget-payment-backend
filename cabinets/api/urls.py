@@ -9,7 +9,8 @@ from cabinets.api.views import(
 )
 from cabinets.api.payment import (
     start_payment_process,
-    update_payment_details
+    update_payment_details,
+    get_payments
 )
 
 from rest_framework.authtoken.views import obtain_auth_token
@@ -31,4 +32,6 @@ urlpatterns = [
          name="initPayment"),
     path('updatePayment', update_payment_details,
          name="updatePayment"),
+    path('getPayments', get_payments,
+         name="getPayments"),
 ]

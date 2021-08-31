@@ -17,6 +17,7 @@ from cabinets.models import AccountPermission, ClientUser, Payment
 import time
 import requests
 import hashlib
+import datetime
 
 from django.forms.models import model_to_dict
 
@@ -91,6 +92,7 @@ def start_payment_process(request):
             payment_url=bank_response_obj['PaymentURL'],
             is_wallet=is_wallet,
             user=user,
+            date=datetime.datetime.now()
         )
 
         new_payment.save()
