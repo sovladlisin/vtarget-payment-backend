@@ -4,7 +4,8 @@ from users.api.views import(
     login_view,
     connect_vk_profile,
     change_email_view,
-    change_password_view
+    change_password_view,
+    update_account_info
 )
 
 from rest_framework.authtoken.views import obtain_auth_token
@@ -20,4 +21,6 @@ urlpatterns = [
          name="changeEmailCredentials"),
     path('changePasswordCredentials', change_password_view,
          name="changePasswordCredentials"),
+    path('updateAccountInfo', update_account_info,
+         name="updateAccountInfo"),
 ]
