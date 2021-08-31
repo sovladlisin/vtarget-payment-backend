@@ -330,8 +330,8 @@ def transfer_with_clients(request):
     if request.method == 'POST':
         user = request.user
         v_data = json.loads(request.body.decode('utf-8'))
-        client_id_from = v_data.get('client_id', None)
-        client_id_to = v_data.get('client_id', None)
+        client_id_from = v_data.get('client_id_from', None)
+        client_id_to = v_data.get('client_id_to', None)
         amount = v_data.get('amount', None)
 
         if None in [client_id_from, client_id_to, amount]:
