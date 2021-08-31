@@ -56,8 +56,8 @@ def start_payment_process(request):
         bank_request_params['TerminalKey'] = terminal
         bank_request_params['Amount'] = amount * 100
 
-        order_id = "{is_wallet}_{client_id}_{user_pk}_{time}".format(
-            is_wallet=is_wallet, client_id=client_id, user_pk=user.pk, time=int(time.time()))
+        order_id = "{is_wallet}_{client_id}_{user_pk}_{amount}_{time}".format(
+            is_wallet=is_wallet, client_id=client_id, user_pk=user.pk, time=int(time.time()), amount=amount)
 
         bank_request_params['OrderId'] = order_id
         bank_request_params['Description'] = 'Desc'
