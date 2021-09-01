@@ -356,8 +356,10 @@ def transfer_with_clients(request):
         all_limit_from -= amount
         all_limit_to += amount
 
+        time.sleep(3)  # Sleep for 3 seconds
         response_from = updateClient(
             account_id, token, client_id_from, client_data_from['name'], client_data_from['day_limit'], all_limit_from)
+        time.sleep(3)  # Sleep for 3 seconds
         response_to = updateClient(
             account_id, token, client_id_to, client_data_to['name'], client_data_to['day_limit'], all_limit_to)
         if response_from == -1 or response_to == -1:
